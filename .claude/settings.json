@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/paula.delmoral/**)",
+      "Bash(mkdir -p tools)",
+      "Bash(curl -# -L -o tools/cloudflared.exe https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe)",
+      "PowerShell($env:Path = \"$env:Path;$env:USERPROFILE\\\\nodejs\"; cd \"$env:USERPROFILE\\\\Documents\\\\personal\\\\guttracker-analysis\"; npm install -D concurrently 2>&1 | Select-Object -Last 3 | Out-String)",
+      "PowerShell($env:Path = \"$env:Path;$env:USERPROFILE\\\\nodejs;$env:USERPROFILE\\\\tools\"; cd \"$env:USERPROFILE\\\\Documents\\\\personal\\\\guttracker-analysis\"; $job = Start-Job -ScriptBlock { $env:Path = \"$env:Path;$env:USERPROFILE\\\\nodejs;$env:USERPROFILE\\\\tools\"; Set-Location \"$env:USERPROFILE\\\\Documents\\\\personal\\\\guttracker-analysis\"; npm run dev:mobile 2>&1 }; Start-Sleep -Seconds 18; $out = Receive-Job $job; Stop-Job $job; Remove-Job $job -Force; $out | Out-String)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\paula.delmoral\\.claude\\projects\\c--Users-paula-delmoral-Documents-personal-guttracker-analysis\\memory"
+    ]
+  }
+}
