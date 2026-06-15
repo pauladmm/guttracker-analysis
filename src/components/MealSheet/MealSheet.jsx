@@ -6,6 +6,7 @@ import FeelButtons from './FeelButtons'
 import { MEAL_TYPES, SYMPTOM_TIMES } from '../../utils/symptomHelpers'
 import { useAuth } from '../../hooks/useAuth'
 import { photosEnabled, uploadMealPhoto, getPhotoUrl } from '../../lib/storage'
+import { extractIngredientsFromPhoto } from '../../lib/claude'
 
 function blankMeal(type) {
   return {
@@ -21,9 +22,20 @@ function blankMeal(type) {
   }
 }
 
-/** Normaliza ingredientes a array de strings para el input de tags. */
-function ingredientNames(ingredients = []) {
-  return ingredients.map((i) => (typeof i === 'string' ? i : i.name))
+/**
+ * Separa los ingredientes guardados en: manuales (los que el usuario escribe y
+ * ve en el formulario) y de IA (extraídos de la foto, ocultos — solo se usan en
+ * Análisis).
+ */
+function splitIngredients(ingredients = []) {
+  const manual = []
+  const ai = []
+  for (const i of ingredients) {
+    if (typeof i === 'string') manual.push(i)
+    else if (i.source === 'ai_extracted') ai.push(i.name)
+    else manual.push(i.name)
+  }
+  return { manual, ai }
 }
 
 /**
@@ -36,18 +48,26 @@ function ingredientNames(ingredients = []) {
  * @param {string} [defaultType] - tipo preseleccionado al crear.
  */
 export default function MealSheet({ open, onClose, onSave, onDelete, initialMeal, defaultType }) {
+  const initial = initialMeal ? splitIngredients(initialMeal.ingredients) : { manual: [], ai: [] }
+
   const [meal, setMeal] = useState(() =>
     initialMeal
-      ? { ...initialMeal, ingredients: ingredientNames(initialMeal.ingredients) }
+      ? { ...initialMeal, ingredients: initial.manual }
       : blankMeal(defaultType)
   )
   const [ingredientInput, setIngredientInput] = useState('')
   const [saving, setSaving] = useState(false)
 
+  // Ingredientes detectados por la IA en la foto. Se guardan en BD con la
+  // comida pero NO se muestran aquí: solo aparecen en la pestaña Análisis.
+  const [aiIngredients, setAiIngredients] = useState(initial.ai)
+
   const { user } = useAuth()
   const [photoPreview, setPhotoPreview] = useState(null)
   const [photoBusy, setPhotoBusy] = useState(false)
   const [photoError, setPhotoError] = useState(null)
+  const [extracting, setExtracting] = useState(false)
+  const [extractError, setExtractError] = useState(null)
 
   // Si la comida ya tenía foto guardada, genera su URL firmada para el preview.
   useEffect(() => {
@@ -66,6 +86,20 @@ export default function MealSheet({ open, onClose, onSave, onDelete, initialMeal
 
   const set = (field) => (value) => setMeal((prev) => ({ ...prev, [field]: value }))
 
+  // Extracción de ingredientes con Claude, en segundo plano (no bloquea la UI).
+  const runExtraction = async (path) => {
+    setExtracting(true)
+    setExtractError(null)
+    try {
+      const found = await extractIngredientsFromPhoto(path)
+      setAiIngredients(found)
+    } catch (err) {
+      setExtractError(err.message ?? 'No se pudieron extraer los ingredientes.')
+    } finally {
+      setExtracting(false)
+    }
+  }
+
   const handlePhoto = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -76,6 +110,8 @@ export default function MealSheet({ open, onClose, onSave, onDelete, initialMeal
     try {
       const path = await uploadMealPhoto(file, user.id)
       setMeal((prev) => ({ ...prev, photo_url: path }))
+      // Dispara la lectura de ingredientes por debajo, sin esperar.
+      runExtraction(path)
     } catch (err) {
       setPhotoError(err.message ?? 'No se pudo subir la foto.')
       setPhotoPreview(null)
@@ -88,6 +124,8 @@ export default function MealSheet({ open, onClose, onSave, onDelete, initialMeal
     setMeal((prev) => ({ ...prev, photo_url: null }))
     setPhotoPreview(null)
     setPhotoError(null)
+    setExtractError(null)
+    setAiIngredients([])
   }
 
   const addIngredient = () => {
@@ -107,10 +145,15 @@ export default function MealSheet({ open, onClose, onSave, onDelete, initialMeal
     e.preventDefault()
     setSaving(true)
     try {
-      await onSave?.({
-        ...meal,
-        ingredients: meal.ingredients.map((name) => ({ name, source: 'manual' })),
-      })
+      // Combina ingredientes manuales + los detectados por la IA (sin duplicar).
+      const manualLower = new Set(meal.ingredients.map((n) => n.toLowerCase()))
+      const ingredients = [
+        ...meal.ingredients.map((name) => ({ name, source: 'manual' })),
+        ...aiIngredients
+          .filter((n) => !manualLower.has(n.toLowerCase()))
+          .map((name) => ({ name, source: 'ai_extracted' })),
+      ]
+      await onSave?.({ ...meal, ingredients })
       onClose?.()
     } finally {
       setSaving(false)
@@ -237,6 +280,11 @@ export default function MealSheet({ open, onClose, onSave, onDelete, initialMeal
             <p className="field-hint">Disponible al conectar Supabase.</p>
           )}
           {photoError && <p className="login-error">{photoError}</p>}
+
+          {extracting && (
+            <p className="field-hint">Leyendo ingredientes de la foto en segundo plano…</p>
+          )}
+          {extractError && <p className="field-hint">No se pudieron leer los ingredientes de la foto.</p>}
         </div>
 
         <div className="field">

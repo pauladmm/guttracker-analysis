@@ -681,6 +681,231 @@ textarea {
   font-size: 0.85rem;
 }
 
+/* ─────────────────────────── Análisis (Fase 3) ─────────────────────────── */
+
+.stats-title {
+  font-size: 1.3rem;
+  margin-bottom: 16px;
+}
+
+.stat-section {
+  margin-bottom: 26px;
+}
+
+.stat-section h3 {
+  font-size: 1rem;
+  margin-bottom: 2px;
+}
+
+.stat-hint {
+  font-size: 0.78rem;
+  color: var(--text-soft);
+  margin: 0 0 12px;
+}
+
+.stat-empty {
+  color: var(--text-soft);
+  font-size: 0.85rem;
+  padding: 8px 0;
+}
+
+.stat-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.stat-card {
+  background: var(--bg-soft);
+  border-radius: var(--radius-sm);
+  padding: 12px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.stat-card__value {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.stat-card__label {
+  font-size: 0.68rem;
+  color: var(--text-soft);
+  text-align: center;
+}
+
+.stat-warning {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: var(--intensity-tint);
+  color: #9a6700;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+}
+
+/* Bar list (rankings) */
+
+.bar-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.bar-row__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.bar-row__label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.bar-row__value {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.bar-row__track {
+  height: 8px;
+  background: var(--bg-soft);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.bar-row__fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.bar-row__sub {
+  display: block;
+  margin-top: 3px;
+  font-size: 0.72rem;
+  color: var(--text-soft);
+}
+
+/* Timeline */
+
+.timeline {
+  display: flex;
+  gap: 3px;
+  align-items: flex-end;
+  height: 120px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.timeline__col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  min-width: 8px;
+  flex: 1;
+}
+
+.timeline__stress {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-bottom: 3px;
+  flex-shrink: 0;
+}
+
+.timeline__bar {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  border-radius: 3px;
+  overflow: hidden;
+  min-height: 3px;
+}
+
+.timeline__bar span {
+  display: block;
+  width: 100%;
+}
+
+/* Symptom-time distribution */
+
+.symptom-time {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  height: 140px;
+}
+
+.symptom-time__col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.symptom-time__count {
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.symptom-time__track {
+  flex: 1;
+  width: 70%;
+  display: flex;
+  align-items: flex-end;
+}
+
+.symptom-time__fill {
+  width: 100%;
+  background: var(--primary);
+  border-radius: 4px 4px 0 0;
+  min-height: 3px;
+}
+
+.symptom-time__label {
+  font-size: 0.66rem;
+  color: var(--text-soft);
+  margin-top: 6px;
+  text-align: center;
+}
+
+/* Dev tools */
+
+.dev-tools {
+  display: flex;
+  gap: 8px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--border);
+}
+
+.dev-tools button {
+  flex: 1;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  font-size: 0.8rem;
+  color: var(--text-soft);
+}
+
 /* ─────────────────────────── Auth / Login ─────────────────────────── */
 
 .app-loading {
@@ -830,3 +1055,4 @@ textarea {
   background-size: cover;
   background-position: center;
 }
+

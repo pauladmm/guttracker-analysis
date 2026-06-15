@@ -147,5 +147,16 @@ const supabaseBackend = {
 
 const db = isSupabaseConfigured ? supabaseBackend : localBackend
 
+/**
+ * Devuelve TODOS los datos del usuario como array de días ordenados por fecha,
+ * para el análisis estadístico. Cada entrada: { date, day, meals }.
+ */
+db.getAll = async () => {
+  const map = await db.getRange('0001-01-01', '9999-12-31')
+  return Object.entries(map)
+    .map(([date, v]) => ({ date, day: v.day, meals: v.meals }))
+    .sort((a, b) => (a.date < b.date ? -1 : 1))
+}
+
 export default db
 export { isSupabaseConfigured }

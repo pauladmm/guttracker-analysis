@@ -1,28 +1,31 @@
-// Cliente para análisis con Claude.
+// Llamadas a Claude vía Edge Functions de Supabase.
 //
-// IMPORTANTE: nunca expongas una API key de Anthropic en el frontend.
-// Estas funciones deben apuntar a un backend propio (p. ej. una Edge
-// Function de Supabase) que guarde la clave de forma segura y reenvíe
-// la petición a la API de Claude.
+// IMPORTANTE: la API key de Anthropic vive en el servidor (secreto de la Edge
+// Function), nunca en el frontend. Aquí solo invocamos la función; Supabase
+// añade automáticamente el JWT del usuario para autenticar la petición.
 
-const ANALYSIS_ENDPOINT =
-  import.meta.env.VITE_CLAUDE_ENDPOINT || '/api/analyze'
+import { supabase, isSupabaseConfigured } from './supabase'
 
 /**
- * Pide a Claude un análisis de la relación entre comidas y síntomas.
- * @param {Object} payload - datos a analizar (comidas, síntomas, rango de fechas).
- * @returns {Promise<Object>} respuesta del análisis.
+ * Extrae los ingredientes de una foto ya subida al bucket meal-photos.
+ * @param {string} path - ruta del objeto (lo que se guarda en meal.photo_url).
+ * @returns {Promise<string[]>} lista de ingredientes detectados.
  */
-export async function analyzeMeals(payload) {
-  const res = await fetch(ANALYSIS_ENDPOINT, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
+export async function extractIngredientsFromPhoto(path) {
+  if (!isSupabaseConfigured) {
+    throw new Error('El análisis de fotos requiere Supabase configurado.')
+  }
+  if (!path) throw new Error('No hay foto que analizar.')
+
+  const { data, error } = await supabase.functions.invoke('extract-ingredients', {
+    body: { path },
   })
 
-  if (!res.ok) {
-    throw new Error(`Error en el análisis de Claude: ${res.status}`)
+  if (error) {
+    throw new Error(error.message ?? 'No se pudo analizar la foto.')
   }
-
-  return res.json()
+  if (data?.error) {
+    throw new Error(data.error)
+  }
+  return Array.isArray(data?.ingredients) ? data.ingredients : []
 }
