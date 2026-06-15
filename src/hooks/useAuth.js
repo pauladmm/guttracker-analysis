@@ -1,15 +1,22 @@
 import { useEffect, useState } from 'react'
-import { supabase } from '../lib/supabase'
+import { supabase, isSupabaseConfigured } from '../lib/supabase'
+
+// Usuario ficticio para el modo local (sin Supabase): la app funciona sin
+// login, guardando en localStorage de este dispositivo.
+const LOCAL_USER = { id: 'local', email: 'local@dispositivo' }
 
 /**
- * Hook de autenticación basado en Supabase Auth.
- * Expone el usuario actual, el estado de carga y helpers de sesión.
+ * Hook de autenticación.
+ * - Con Supabase configurado: usa Supabase Auth (email + contraseña).
+ * - Sin Supabase: modo local, siempre "logueado" como usuario del dispositivo.
  */
 export function useAuth() {
   const [session, setSession] = useState(null)
-  const [loading, setLoading] = useState(true)
+  // En modo local no hay carga asíncrona.
+  const [loading, setLoading] = useState(isSupabaseConfigured)
 
   useEffect(() => {
+    if (!isSupabaseConfigured) return
     let mounted = true
 
     supabase.auth.getSession().then(({ data }) => {
@@ -31,20 +38,25 @@ export function useAuth() {
     }
   }, [])
 
+  const user = isSupabaseConfigured ? session?.user ?? null : LOCAL_USER
+
   const signInWithEmail = (email, password) =>
     supabase.auth.signInWithPassword({ email, password })
 
   const signUpWithEmail = (email, password) =>
     supabase.auth.signUp({ email, password })
 
-  const signOut = () => supabase.auth.signOut()
+  const signOut = () =>
+    isSupabaseConfigured ? supabase.auth.signOut() : Promise.resolve()
 
   return {
     session,
-    user: session?.user ?? null,
+    user,
     loading,
     signInWithEmail,
     signUpWithEmail,
     signOut,
+    // ¿La app requiere login? Solo cuando Supabase está configurado.
+    needsAuth: isSupabaseConfigured,
   }
 }

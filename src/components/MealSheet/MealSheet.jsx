@@ -1,9 +1,11 @@
-import { useState } from 'react'
-import { IconPlus, IconX, IconTrash } from '@tabler/icons-react'
+import { useEffect, useState } from 'react'
+import { IconPlus, IconX, IconTrash, IconCamera } from '@tabler/icons-react'
 import BottomSheet from '../UI/BottomSheet'
 import IntensityPicker from './IntensityPicker'
 import FeelButtons from './FeelButtons'
 import { MEAL_TYPES, SYMPTOM_TIMES } from '../../utils/symptomHelpers'
+import { useAuth } from '../../hooks/useAuth'
+import { photosEnabled, uploadMealPhoto, getPhotoUrl } from '../../lib/storage'
 
 function blankMeal(type) {
   return {
@@ -15,6 +17,7 @@ function blankMeal(type) {
     symptom_time: null,
     extra_symptoms: '',
     ingredients: [],
+    photo_url: null,
   }
 }
 
@@ -41,7 +44,51 @@ export default function MealSheet({ open, onClose, onSave, onDelete, initialMeal
   const [ingredientInput, setIngredientInput] = useState('')
   const [saving, setSaving] = useState(false)
 
+  const { user } = useAuth()
+  const [photoPreview, setPhotoPreview] = useState(null)
+  const [photoBusy, setPhotoBusy] = useState(false)
+  const [photoError, setPhotoError] = useState(null)
+
+  // Si la comida ya tenía foto guardada, genera su URL firmada para el preview.
+  useEffect(() => {
+    let active = true
+    if (meal.photo_url) {
+      getPhotoUrl(meal.photo_url).then((url) => {
+        if (active) setPhotoPreview(url)
+      })
+    }
+    return () => {
+      active = false
+    }
+    // Solo al montar: la foto inicial. Las nuevas se previsualizan al subir.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const set = (field) => (value) => setMeal((prev) => ({ ...prev, [field]: value }))
+
+  const handlePhoto = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setPhotoBusy(true)
+    setPhotoError(null)
+    // Preview inmediato con la imagen local mientras se sube.
+    setPhotoPreview(URL.createObjectURL(file))
+    try {
+      const path = await uploadMealPhoto(file, user.id)
+      setMeal((prev) => ({ ...prev, photo_url: path }))
+    } catch (err) {
+      setPhotoError(err.message ?? 'No se pudo subir la foto.')
+      setPhotoPreview(null)
+    } finally {
+      setPhotoBusy(false)
+    }
+  }
+
+  const removePhoto = () => {
+    setMeal((prev) => ({ ...prev, photo_url: null }))
+    setPhotoPreview(null)
+    setPhotoError(null)
+  }
 
   const addIngredient = () => {
     const name = ingredientInput.trim()
@@ -155,6 +202,42 @@ export default function MealSheet({ open, onClose, onSave, onDelete, initialMeal
             rows={2}
           />
         </label>
+
+        {/* Foto (etiqueta de producto, plato, ticket…) */}
+        <div className="field">
+          <span className="field-label">Foto</span>
+          {photosEnabled ? (
+            photoPreview ? (
+              <div className="photo-preview">
+                <img src={photoPreview} alt="Foto de la comida" />
+                {photoBusy && <span className="photo-preview__status">Subiendo…</span>}
+                <button
+                  type="button"
+                  className="photo-preview__remove"
+                  onClick={removePhoto}
+                  aria-label="Quitar foto"
+                >
+                  <IconX size={16} stroke={2} />
+                </button>
+              </div>
+            ) : (
+              <label className="photo-add">
+                <IconCamera size={22} stroke={1.75} />
+                <span>Añadir foto</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={handlePhoto}
+                  hidden
+                />
+              </label>
+            )
+          ) : (
+            <p className="field-hint">Disponible al conectar Supabase.</p>
+          )}
+          {photoError && <p className="login-error">{photoError}</p>}
+        </div>
 
         <div className="field">
           <span className="field-label">Ingredientes</span>

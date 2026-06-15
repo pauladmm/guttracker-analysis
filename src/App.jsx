@@ -1,16 +1,39 @@
 import { BrowserRouter, Routes, Route, NavLink, Navigate } from 'react-router-dom'
-import { IconCalendar, IconChartHistogram } from '@tabler/icons-react'
+import { IconCalendar, IconChartHistogram, IconLogout } from '@tabler/icons-react'
 import TrackerPage from './pages/TrackerPage'
 import StatsPage from './pages/StatsPage'
-import { isSupabaseConfigured } from './lib/supabase'
+import LoginPage from './pages/LoginPage'
+import { useAuth } from './hooks/useAuth'
 
 export default function App() {
+  const { user, loading, needsAuth, signOut } = useAuth()
+
+  if (loading) {
+    return <div className="app-loading">Cargando…</div>
+  }
+
+  // Con Supabase configurado, exige login antes de mostrar la app.
+  if (needsAuth && !user) {
+    return <LoginPage />
+  }
+
   return (
     <BrowserRouter>
       <div className="app-shell">
         <header className="app-header">
-          <h1 className="app-title">GutTracker</h1>
-          {!isSupabaseConfigured && <span className="app-badge">local</span>}
+          <h1 className="app-title">JaviTracker</h1>
+          {!needsAuth && <span className="app-badge">local</span>}
+          {needsAuth && user && (
+            <button
+              type="button"
+              className="app-signout"
+              onClick={signOut}
+              aria-label="Cerrar sesión"
+              title="Cerrar sesión"
+            >
+              <IconLogout size={20} stroke={1.75} />
+            </button>
+          )}
         </header>
 
         <main className="app-main">

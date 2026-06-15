@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import {
   IconCoffee,
   IconSalad,
@@ -6,6 +7,7 @@ import {
 } from '@tabler/icons-react'
 import Badge from '../UI/Badge'
 import { getMealType, getFeelColor, COLORS } from '../../utils/symptomHelpers'
+import { getPhotoUrl } from '../../lib/storage'
 
 const ICONS = {
   coffee: IconCoffee,
@@ -27,6 +29,19 @@ export default function MealCard({ meal, onEdit }) {
     typeof i === 'string' ? i : i.name
   )
 
+  const [photoUrl, setPhotoUrl] = useState(null)
+  useEffect(() => {
+    let active = true
+    // getPhotoUrl devuelve null si no hay foto; el setState va en el .then
+    // (async), no de forma síncrona en el cuerpo del efecto.
+    getPhotoUrl(meal.photo_url).then((url) => {
+      if (active) setPhotoUrl(url)
+    })
+    return () => {
+      active = false
+    }
+  }, [meal.photo_url])
+
   return (
     <button
       type="button"
@@ -34,9 +49,16 @@ export default function MealCard({ meal, onEdit }) {
       style={{ borderLeftColor: feelColor }}
       onClick={() => onEdit?.(meal)}
     >
-      <div className="meal-card__icon" style={{ background: type?.tint, color: type?.accent }}>
-        <Icon size={20} stroke={1.75} />
-      </div>
+      {photoUrl ? (
+        <div
+          className="meal-card__icon meal-card__icon--photo"
+          style={{ backgroundImage: `url(${photoUrl})` }}
+        />
+      ) : (
+        <div className="meal-card__icon" style={{ background: type?.tint, color: type?.accent }}>
+          <Icon size={20} stroke={1.75} />
+        </div>
+      )}
 
       <div className="meal-card__body">
         <div className="meal-card__top">

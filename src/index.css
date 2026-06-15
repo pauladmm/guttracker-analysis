@@ -680,3 +680,153 @@ textarea {
 .placeholder__hint {
   font-size: 0.85rem;
 }
+
+/* ─────────────────────────── Auth / Login ─────────────────────────── */
+
+.app-loading {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  color: var(--text-soft);
+}
+
+.app-signout {
+  margin-left: auto;
+  border: none;
+  background: var(--bg-soft);
+  border-radius: var(--radius-sm);
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  color: var(--text-soft);
+}
+
+.login-page {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  min-height: 100svh;
+  background: var(--bg);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.login-card {
+  width: 100%;
+  text-align: center;
+}
+
+.login-title {
+  font-size: 1.6rem;
+  margin-bottom: 4px;
+}
+
+.login-sub {
+  color: var(--text-soft);
+  margin-bottom: 24px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  text-align: left;
+}
+
+.login-form input {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+}
+
+.login-form input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.login-error {
+  color: var(--bad);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.login-info {
+  color: var(--good);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.login-switch {
+  margin-top: 18px;
+  border: none;
+  background: transparent;
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* ─────────────────────────── Fotos ─────────────────────────── */
+
+.field-hint {
+  color: var(--text-soft);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.photo-add {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  padding: 20px;
+  color: var(--text-soft);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.photo-preview {
+  position: relative;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.photo-preview img {
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  display: block;
+}
+
+.photo-preview__status {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(20, 18, 30, 0.45);
+  color: #fff;
+  font-size: 0.85rem;
+}
+
+.photo-preview__remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  border: none;
+  background: rgba(20, 18, 30, 0.6);
+  color: #fff;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+}
+
+.meal-card__icon--photo {
+  background-size: cover;
+  background-position: center;
+}
