@@ -1,0 +1,12 @@
+{
+  // Configuración para Cloudflare Workers (assets estáticos).
+  // El sitio es una SPA (react-router): "single-page-application" hace que
+  // cualquier ruta desconocida sirva index.html con 200, sin el bucle que
+  // provoca un _redirects.
+  "name": "guttracker-analysis",
+  "compatibility_date": "2026-06-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  }
+}
