@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { IconPlus, IconX, IconTrash, IconCamera } from '@tabler/icons-react'
+import { IconX, IconTrash, IconCamera } from '@tabler/icons-react'
 import BottomSheet from '../UI/BottomSheet'
 import IntensityPicker from './IntensityPicker'
 import FeelButtons from './FeelButtons'
+import IngredientInput from './IngredientInput'
 import { MEAL_TYPES, SYMPTOM_TIMES } from '../../utils/symptomHelpers'
 import { useAuth } from '../../hooks/useAuth'
 import { photosEnabled, uploadMealPhoto, getPhotoUrl } from '../../lib/storage'
@@ -47,7 +48,7 @@ function splitIngredients(ingredients = []) {
  * @param {object} [initialMeal] - si se pasa, modo edición.
  * @param {string} [defaultType] - tipo preseleccionado al crear.
  */
-export default function MealSheet({ open, onClose, onSave, onDelete, initialMeal, defaultType }) {
+export default function MealSheet({ open, onClose, onSave, onDelete, initialMeal, defaultType, catalog = [] }) {
   const initial = initialMeal ? splitIngredients(initialMeal.ingredients) : { manual: [], ai: [] }
 
   const [meal, setMeal] = useState(() =>
@@ -55,7 +56,6 @@ export default function MealSheet({ open, onClose, onSave, onDelete, initialMeal
       ? { ...initialMeal, ingredients: initial.manual }
       : blankMeal(defaultType)
   )
-  const [ingredientInput, setIngredientInput] = useState('')
   const [saving, setSaving] = useState(false)
 
   // Ingredientes detectados por la IA en la foto. Se guardan en BD con la
@@ -128,18 +128,7 @@ export default function MealSheet({ open, onClose, onSave, onDelete, initialMeal
     setAiIngredients([])
   }
 
-  const addIngredient = () => {
-    const name = ingredientInput.trim()
-    if (!name) return
-    setMeal((prev) => ({ ...prev, ingredients: [...prev.ingredients, name] }))
-    setIngredientInput('')
-  }
-
-  const removeIngredient = (idx) =>
-    setMeal((prev) => ({
-      ...prev,
-      ingredients: prev.ingredients.filter((_, i) => i !== idx),
-    }))
+  const setIngredients = (names) => setMeal((prev) => ({ ...prev, ingredients: names }))
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -289,35 +278,11 @@ export default function MealSheet({ open, onClose, onSave, onDelete, initialMeal
 
         <div className="field">
           <span className="field-label">Ingredientes</span>
-          <div className="ingredient-input">
-            <input
-              type="text"
-              value={ingredientInput}
-              onChange={(e) => setIngredientInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault()
-                  addIngredient()
-                }
-              }}
-              placeholder="Añade un ingrediente y pulsa Enter"
-            />
-            <button type="button" className="icon-button icon-button--primary" onClick={addIngredient} aria-label="Añadir ingrediente">
-              <IconPlus size={18} stroke={2} />
-            </button>
-          </div>
-          {meal.ingredients.length > 0 && (
-            <ul className="ingredient-tags">
-              {meal.ingredients.map((name, idx) => (
-                <li key={idx} className="ingredient-tag">
-                  {name}
-                  <button type="button" onClick={() => removeIngredient(idx)} aria-label={`Quitar ${name}`}>
-                    <IconX size={14} stroke={2} />
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
+          <IngredientInput
+            value={meal.ingredients}
+            onChange={setIngredients}
+            catalog={catalog}
+          />
         </div>
 
         <div className="meal-sheet__actions">

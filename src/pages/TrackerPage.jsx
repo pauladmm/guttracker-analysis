@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Calendar from '../components/Calendar/Calendar'
 import DayPanel from '../components/DayPanel/DayPanel'
 import MealSheet from '../components/MealSheet/MealSheet'
 import { useMeals, useMonthEntries } from '../hooks/useMeals'
+import db from '../lib/db'
+import { buildCatalog } from '../utils/ingredients'
 
 const TODAY = new Date()
 
@@ -16,6 +18,18 @@ export default function TrackerPage() {
 
   // Entradas del mes para los indicadores del calendario.
   const entriesByDate = useMonthEntries(monthDate, refreshKey)
+
+  // Catálogo de ingredientes (historial + semilla) para el autocompletado.
+  const [catalog, setCatalog] = useState([])
+  useEffect(() => {
+    let active = true
+    db.getAll().then((all) => {
+      if (active) setCatalog(buildCatalog(all))
+    })
+    return () => {
+      active = false
+    }
+  }, [refreshKey])
 
   // Estado del bottom sheet.
   const [sheetOpen, setSheetOpen] = useState(false)
@@ -83,6 +97,7 @@ export default function TrackerPage() {
           onDelete={handleDeleteMeal}
           initialMeal={editingMeal}
           defaultType={defaultType}
+          catalog={catalog}
         />
       )}
     </div>

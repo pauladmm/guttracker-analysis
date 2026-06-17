@@ -20,7 +20,9 @@
       "Skill(claude-api:*)",
       "PowerShell($env:Path = \"$env:Path;$env:USERPROFILE\\\\nodejs\"; cd \"$env:USERPROFILE\\\\Documents\\\\personal\\\\guttracker-analysis\"; npm run lint 2>&1 | Out-String; Write-Output \"=== BUILD ===\"; npm run build 2>&1 | Select-Object -Last 6 | Out-String)",
       "PowerShell($env:Path = \"$env:Path;$env:USERPROFILE\\\\nodejs\"; cd \"$env:USERPROFILE\\\\Documents\\\\personal\\\\guttracker-analysis\"; npm run lint 2>&1 | Out-String; Write-Output \"=== BUILD ===\"; npm run build 2>&1 | Select-String -Pattern \"built in|error\" | Out-String)",
-      "PowerShell($env:Path = \"$env:Path;$env:USERPROFILE\\\\nodejs\"; cd \"$env:USERPROFILE\\\\Documents\\\\personal\\\\guttracker-analysis\"; npm run lint 2>&1 | Out-String; Write-Output \"=== BUILD ===\"; npm run build 2>&1 | Select-String -Pattern \"built in|error|Error\" | Out-String)"
+      "PowerShell($env:Path = \"$env:Path;$env:USERPROFILE\\\\nodejs\"; cd \"$env:USERPROFILE\\\\Documents\\\\personal\\\\guttracker-analysis\"; npm run lint 2>&1 | Out-String; Write-Output \"=== BUILD ===\"; npm run build 2>&1 | Select-String -Pattern \"built in|error|Error\" | Out-String)",
+      "PowerShell($env:Path = \"$env:Path;$env:USERPROFILE\\\\nodejs\"; cd \"$env:USERPROFILE\\\\Documents\\\\personal\\\\guttracker-analysis\"; npm run build 2>&1 | Select-String -Pattern \"built in|error\" | Out-String; Write-Output \"=== _redirects en dist? ===\"; if \\(Test-Path dist/_redirects\\) { Get-Content dist/_redirects } else { Write-Output \"NO encontrado\" })",
+      "PowerShell(cd \"$env:USERPROFILE\\\\Documents\\\\personal\\\\guttracker-analysis\"; Remove-Item public/_redirects -Force; Write-Output \"Eliminado public/_redirects\"; Get-ChildItem public | Select-Object Name)"
     ],
     "additionalDirectories": [
       "c:\\Users\\paula.delmoral\\.claude\\projects\\c--Users-paula-delmoral-Documents-personal-guttracker-analysis\\memory"

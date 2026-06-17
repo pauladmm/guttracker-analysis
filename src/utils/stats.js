@@ -7,6 +7,7 @@
 // recuentos — evitando modelos que sobreajustarían con pocos datos.
 
 import { MEAL_TYPES, SYMPTOM_TIMES } from './symptomHelpers'
+import { normalizeKey } from './ingredients'
 
 /** Aplana los días en una lista de comidas, arrastrando estrés y fecha. */
 export function flattenMeals(entries = []) {
@@ -17,7 +18,8 @@ export function flattenMeals(entries = []) {
       const names = (m.ingredients ?? [])
         .map((i) => (typeof i === 'string' ? i : i.name))
         .filter(Boolean)
-        .map((n) => n.trim().toLowerCase())
+        .map((n) => normalizeKey(n))
+        .filter(Boolean)
       meals.push({ ...m, date: e.date, stress, names: [...new Set(names)] })
     }
   }

@@ -609,6 +609,78 @@ textarea {
   padding: 2px;
 }
 
+/* Autocompletado de ingredientes */
+
+.ing-combo {
+  position: relative;
+}
+
+.ing-combo__field {
+  position: relative;
+  display: flex;
+  gap: 8px;
+}
+
+.ing-combo__field input {
+  flex: 1;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  color: var(--text);
+}
+
+.ing-combo__field input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.ing-combo__menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 30;
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 8px 24px rgba(20, 18, 30, 0.12);
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.ing-combo__option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  text-transform: capitalize;
+}
+
+.ing-combo__option.is-active {
+  background: var(--primary-tint);
+}
+
+.ing-combo__count {
+  font-size: 0.72rem;
+  color: var(--text-soft);
+  text-transform: none;
+}
+
+.ing-combo__create {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--primary);
+  font-weight: 600;
+}
+
 /* Icon button */
 
 .icon-button {
